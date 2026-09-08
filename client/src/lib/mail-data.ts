@@ -7,6 +7,7 @@ export type MailItem = {
   unread?: boolean;
   code?: string;
   body?: string;
+  html?: string;
   links?: Array<{ label: string; url: string }>;
   starred?: boolean;
   archived?: boolean;
