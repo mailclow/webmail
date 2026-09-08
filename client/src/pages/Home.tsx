@@ -80,25 +80,6 @@ function renderLinkedText(text: string, links: Array<{ label: string; url: strin
   });
 }
 
-function linkLabel(url: string, label: string): string {
-  const normalized = label.trim();
-  if (normalized && normalized.length < 70 && !/^https?:\/\//i.test(normalized)) return normalized;
-  const lower = `${normalized} ${url}`.toLowerCase();
-  if (lower.includes("verify") || lower.includes("confirm") || lower.includes("verif")) return "Verificar e-mail";
-  if (lower.includes("reset") || lower.includes("recover") || lower.includes("senha")) return "Redefinir senha";
-  if (lower.includes("login") || lower.includes("sign in") || lower.includes("entrar")) return "Entrar";
-  return "Abrir link seguro";
-}
-
-function messageActionLabel(subject: string, body: string): string {
-  const text = `${subject} ${body}`.toLowerCase();
-  if (text.includes("discord")) return "Entrar no Discord";
-  if (text.includes("verify") || text.includes("verif")) return "Verificar e-mail";
-  if (text.includes("reset") || text.includes("recover") || text.includes("senha")) return "Redefinir senha";
-  if (text.includes("login") || text.includes("sign in") || text.includes("entrar")) return "Entrar";
-  return "Abrir link seguro";
-}
-
 function renderPlainBody(text: string) {
   const withoutUrls = text.replace(/https?:\/\/\S+/gi, "").replace(/\s*:\s*$/, ".").trim();
   const sentences = withoutUrls.split(/(?<=[.!?])\s+/).filter(Boolean);
@@ -254,13 +235,6 @@ function InboxView({ email, onLogout }: { email: string; onLogout: () => void })
             <div className="detail-meta"><strong>{selectedMail.sender}</strong><span>{selectedMail.time}</span></div>
             <div className="detail-body">
               {selectedMail.html ? <div className="email-html" dangerouslySetInnerHTML={{ __html: selectedMail.html }} /> : <div className="email-plain">{renderPlainBody(selectedMail.body || selectedMail.preview)}</div>}
-              {selectedMail.links && selectedMail.links.length > 0 && (
-                <div className="detail-links">
-                  {selectedMail.links.slice(0, 8).map((link) => (
-                    <a className="primary-mail-action" key={link.url} href={link.url} target="_blank" rel="noopener noreferrer nofollow">{selectedMail.links?.[0] === link ? messageActionLabel(selectedMail.subject, selectedMail.body || "") : linkLabel(link.url, link.label)}</a>
-                  ))}
-                </div>
-              )}
             </div>
             {selectedMail.code && <div className="detail-code">{selectedMail.code}</div>}
             <div className="detail-actions">
