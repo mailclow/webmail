@@ -17,19 +17,20 @@ import {
 import { type MailItem } from "@/lib/mail-data";
 
 const AUTO_REFRESH_INTERVAL_MS = 5000;
+const API_BASE = "https://webmail-ji61.onrender.com";
 
 type SessionResponse = { authenticated: boolean; email: string | null };
 type MessagesResponse = { messages: MailItem[] };
 type Folder = "inbox" | "starred" | "archived" | "trash";
 
 async function fetchSession(): Promise<SessionResponse> {
-  const response = await fetch("/api/session", { credentials: "same-origin" });
+  const response = await fetch(`${API_BASE}/api/session`, { credentials: "include" });
   if (!response.ok) throw new Error("Não foi possível verificar a sessão.");
   return (await response.json()) as SessionResponse;
 }
 
 async function fetchMessages(): Promise<MailItem[]> {
-  const response = await fetch("/api/messages", { credentials: "same-origin" });
+  const response = await fetch(`${API_BASE}/api/messages`, { credentials: "include" });
   if (!response.ok) {
     const payload = (await response.json().catch(() => ({}))) as { error?: string };
     throw new Error(payload.error || "Não foi possível carregar as mensagens.");
@@ -39,10 +40,10 @@ async function fetchMessages(): Promise<MailItem[]> {
 }
 
 async function login(email: string, password: string): Promise<void> {
-  const response = await fetch("/api/auth/login", {
+  const response = await fetch(`${API_BASE}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    credentials: "same-origin",
+    credentials: "include",
     body: JSON.stringify({ email, password }),
   });
   if (!response.ok) {
@@ -52,9 +53,9 @@ async function login(email: string, password: string): Promise<void> {
 }
 
 async function logout(): Promise<void> {
-  const response = await fetch("/api/auth/logout", {
+  const response = await fetch(`${API_BASE}/api/auth/logout`, {
     method: "POST",
-    credentials: "same-origin",
+    credentials: "include",
   });
   if (!response.ok) throw new Error("Não foi possível sair.");
 }
