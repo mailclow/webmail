@@ -18,6 +18,7 @@ import { type MailItem } from "@/lib/mail-data";
 
 const AUTO_REFRESH_INTERVAL_MS = 5000;
 const API_BASE = "https://webmail-ji61.onrender.com";
+const SESSION_STORAGE_KEY = "strongmail_session_token";
 
 type SessionResponse = { authenticated: boolean; email: string | null };
 type MessagesResponse = { messages: MailItem[] };
@@ -25,13 +26,15 @@ type Folder = "inbox" | "starred" | "archived" | "trash";
 type ApiError = Error & { status?: number };
 
 async function fetchSession(): Promise<SessionResponse> {
-  const response = await fetch(`${API_BASE}/api/session`, { credentials: "include" });
+  const token = window.localStorage.getItem(SESSION_STORAGE_KEY);
+  const response = await fetch(`${API_BASE}/api/session`, { credentials: "include", headers: token ? { Authorization: `Bearer ${token}` } : undefined });
   if (!response.ok) throw new Error("Não foi possível verificar a sessão.");
   return (await response.json()) as SessionResponse;
 }
 
 async function fetchMessages(): Promise<MailItem[]> {
-  const response = await fetch(`${API_BASE}/api/messages`, { credentials: "include" });
+  const token = window.localStorage.getItem(SESSION_STORAGE_KEY);
+  const response = await fetch(`${API_BASE}/api/messages`, { credentials: "include", headers: token ? { Authorization: `Bearer ${token}` } : undefined });
   if (!response.ok) {
     const payload = (await response.json().catch(() => ({}))) as { error?: string };
     const error = new Error(payload.error || "Não foi possível carregar as mensagens.") as ApiError;
@@ -53,6 +56,8 @@ async function login(email: string, password: string): Promise<void> {
     const payload = (await response.json().catch(() => ({}))) as { error?: string };
     throw new Error(payload.error || "Não foi possível entrar.");
   }
+  const payload = (await response.json()) as { sessionToken?: string };
+  if (payload.sessionToken) window.localStorage.setItem(SESSION_STORAGE_KEY, payload.sessionToken);
 }
 
 async function logout(): Promise<void> {
@@ -61,6 +66,7 @@ async function logout(): Promise<void> {
     credentials: "include",
   });
   if (!response.ok) throw new Error("Não foi possível sair.");
+  window.localStorage.removeItem(SESSION_STORAGE_KEY);
 }
 
 function renderLinkedText(text: string, links: Array<{ label: string; url: string }>) {
