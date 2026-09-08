@@ -287,8 +287,12 @@
 .email-html img { max-width: 100%; height: auto; }
 .email-html table { max-width: 100%; }
 .email-html p { margin: 0 0 12px; }
+.email-plain { padding: 3px 2px; color: #353535; background: #fff; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.65; }
+.email-plain p { margin: 0 0 14px; }
 .detail-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
 .detail-links a { display: inline-flex; align-items: center; justify-content: center; min-height: 34px; padding: 8px 12px; border-radius: 8px; color: #151515; background: #ededed; font-size: 11px; font-weight: 700; text-decoration: none; }
+.detail-links a.primary-mail-action { min-width: 160px; color: #fff; background: #5865f2; box-shadow: 0 8px 18px rgba(88,101,242,.24); }
+.detail-links a.primary-mail-action:hover { background: #4752c4; }
 .detail-links a:hover { background: #fff; }
 .detail-code { display: inline-block; padding: 10px 14px; border-radius: 9px; color: #141414; background: #ebebeb; font-size: 18px; font-weight: 800; letter-spacing: .18em; }
 .detail-actions { display: flex; gap: 8px; margin-top: 22px; }
