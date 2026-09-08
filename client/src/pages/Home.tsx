@@ -309,7 +309,14 @@ export default function Home() {
       }
   }
 
-  if (checkingSession) return null;
+  if (checkingSession) {
+    return (
+      <main className="auth-shell auth-loading" aria-live="polite">
+        <div className="loading-mark">ST</div>
+        <span>Conectando ao servidor...</span>
+      </main>
+    );
+  }
   if (authenticated) return <InboxView email={email} onLogout={handleLogout} />;
 
   return (
