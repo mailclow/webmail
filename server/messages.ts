@@ -40,8 +40,8 @@ function htmlBody(value: string | string[] | null | undefined): { text: string; 
 function extractLinks(text: string, links: Array<{ label: string; url: string }>): Array<{ label: string; url: string }> {
   const seen = new Set(links.map((item) => item.url));
   const result = [...links];
-  for (const match of text.matchAll(/https?:\/\/[^\s<>"]+/g)) {
-    const url = match[0].replace(/[),.;]+$/, "");
+  for (const match of text.match(/https?:\/\/[^\s<>\"]+/g) || []) {
+    const url = match.replace(/[),.;]+$/, "");
     if (!seen.has(url)) {
       seen.add(url);
       result.push({ label: url, url });
@@ -64,7 +64,7 @@ export async function getInboundMessagesForSession(session: LocalSession): Promi
       body = (detail.text || parsedHtml.text).replace(/\s+/g, " ").trim();
       html = parsedHtml.html;
       links = extractLinks(body, parsedHtml.links);
-      bodyCache.set(summary.id, { text: body, links });
+      bodyCache.set(summary.id, { text: body, html, links });
     }
 
     const recipients = (detail.to || summary.to || []).map(duckAddressEmail);
