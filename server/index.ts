@@ -17,9 +17,27 @@ function currentSession(req: express.Request) {
 
 const app = express();
 const server = createServer(app);
+const frontendOrigin = process.env.FRONTEND_ORIGIN || "https://mailclow.github.io";
+app.use((req, res, next) => {
+  if (req.headers.origin === frontendOrigin) {
+    res.setHeader("Access-Control-Allow-Origin", frontendOrigin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  }
+  if (req.method === "OPTIONS") {
+    res.status(204).end();
+    return;
+  }
+  next();
+});
 app.use(express.json({ limit: "100kb" }));
 app.use(cookieParser());
 registerAuthCodeRoutes(app);
+
+app.get("/healthz", (_req, res) => {
+  res.json({ ok: true });
+});
 
 app.get("/api/session", (req, res) => {
   const session = currentSession(req);

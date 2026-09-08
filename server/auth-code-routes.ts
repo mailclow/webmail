@@ -15,7 +15,7 @@ function cookie(res: Response, email: string, password: string, token: string, a
   const sessionId = createSession({ email, password, duckToken: token, accountId });
   res.cookie(SESSION_COOKIE, sessionId, {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     secure: process.env.NODE_ENV === "production",
     maxAge: 1000 * 60 * 60 * 24,
   });
@@ -29,7 +29,9 @@ function randomMailboxPassword(): string {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
   const bytes = randomBytes(20);
   let output = "";
-  for (const byte of bytes) output += alphabet[byte % alphabet.length];
+  for (let index = 0; index < bytes.length; index += 1) {
+    output += alphabet[bytes[index] % alphabet.length];
+  }
   return output;
 }
 
