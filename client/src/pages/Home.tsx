@@ -90,6 +90,21 @@ function linkLabel(url: string, label: string): string {
   return "Abrir link seguro";
 }
 
+function messageActionLabel(subject: string, body: string): string {
+  const text = `${subject} ${body}`.toLowerCase();
+  if (text.includes("discord")) return "Entrar no Discord";
+  if (text.includes("verify") || text.includes("verif")) return "Verificar e-mail";
+  if (text.includes("reset") || text.includes("recover") || text.includes("senha")) return "Redefinir senha";
+  if (text.includes("login") || text.includes("sign in") || text.includes("entrar")) return "Entrar";
+  return "Abrir link seguro";
+}
+
+function renderPlainBody(text: string) {
+  const withoutUrls = text.replace(/https?:\/\/\S+/gi, "").replace(/\s*:\s*$/, ".").trim();
+  const sentences = withoutUrls.split(/(?<=[.!?])\s+/).filter(Boolean);
+  return sentences.map((sentence, index) => <p key={index}>{sentence}</p>);
+}
+
 function InboxView({ email, onLogout }: { email: string; onLogout: () => void }) {
   const [mails, setMails] = useState<MailItem[]>([]);
   const [lastSync, setLastSync] = useState(new Date());
@@ -103,7 +118,8 @@ function InboxView({ email, onLogout }: { email: string; onLogout: () => void })
     setSyncing(true);
     try {
       const next = await fetchMessages();
-      setMails(next);
+      const deletedIds = JSON.parse(window.localStorage.getItem("strongmail_deleted_ids") || "[]") as string[];
+      setMails(next.filter((mail) => !deletedIds.includes(mail.id)));
       setLoadError("");
     } catch (error) {
       setLoadError(error instanceof Error ? error.message : "Não foi possível atualizar a caixa.");
@@ -139,6 +155,11 @@ function InboxView({ email, onLogout }: { email: string; onLogout: () => void })
   }
 
   function toggleMailFlag(id: string, field: "starred" | "archived" | "trashed") {
+    if (field === "trashed") {
+      const current = JSON.parse(window.localStorage.getItem("strongmail_deleted_ids") || "[]") as string[];
+      const next = current.includes(id) ? current.filter((item) => item !== id) : [...current, id];
+      window.localStorage.setItem("strongmail_deleted_ids", JSON.stringify(next));
+    }
     setMails((current) => current.map((mail) => mail.id === id ? { ...mail, [field]: !mail[field] } : mail));
   }
 
@@ -232,11 +253,11 @@ function InboxView({ email, onLogout }: { email: string; onLogout: () => void })
             <h2 id="mail-detail-title">{selectedMail.subject}</h2>
             <div className="detail-meta"><strong>{selectedMail.sender}</strong><span>{selectedMail.time}</span></div>
             <div className="detail-body">
-              {selectedMail.html ? <div className="email-html" dangerouslySetInnerHTML={{ __html: selectedMail.html }} /> : renderLinkedText(selectedMail.body || selectedMail.preview, selectedMail.links || [])}
-              {selectedMail.links && selectedMail.links.length > 0 && !selectedMail.links.every((link) => (selectedMail.body || "").includes(link.url)) && (
+              {selectedMail.html ? <div className="email-html" dangerouslySetInnerHTML={{ __html: selectedMail.html }} /> : <div className="email-plain">{renderPlainBody(selectedMail.body || selectedMail.preview)}</div>}
+              {selectedMail.links && selectedMail.links.length > 0 && (
                 <div className="detail-links">
                   {selectedMail.links.slice(0, 8).map((link) => (
-                    <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer nofollow">{linkLabel(link.url, link.label)}</a>
+                    <a className="primary-mail-action" key={link.url} href={link.url} target="_blank" rel="noopener noreferrer nofollow">{selectedMail.links?.[0] === link ? messageActionLabel(selectedMail.subject, selectedMail.body || "") : linkLabel(link.url, link.label)}</a>
                   ))}
                 </div>
               )}
