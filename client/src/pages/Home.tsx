@@ -114,7 +114,6 @@ function InboxView({ email, onLogout }: { email: string; onLogout: () => void })
       if (status === 401) {
         setServerWaking(false);
         setLoadError("Sua sessão expirou. Faça login novamente.");
-        onLogout();
       } else if (typeof status === "number") {
         setServerWaking(false);
         setLoadError(error instanceof Error ? error.message : "Não foi possível sincronizar as mensagens.");
@@ -130,9 +129,12 @@ function InboxView({ email, onLogout }: { email: string; onLogout: () => void })
   }
 
   useEffect(() => {
-    void refreshInbox();
+    const firstRefresh = window.setTimeout(() => void refreshInbox(), 700);
     const timer = window.setInterval(() => void refreshInbox(), AUTO_REFRESH_INTERVAL_MS);
-    return () => window.clearInterval(timer);
+    return () => {
+      window.clearTimeout(firstRefresh);
+      window.clearInterval(timer);
+    };
   }, []);
 
   const counts = useMemo(() => ({
