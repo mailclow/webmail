@@ -327,7 +327,7 @@ export default function Home() {
 
         <div className="card-content">
           <div className="brand-lockup"><div className="mark-stage"><div className="stage-glow" /><img className="brand-logo-image" src="/webmail/strong-mail-st-logo-transparent.png" alt="ST" /></div><div className="brand-name">Strong <span>Mail</span></div></div>
-          <div className="welcome-copy"><h1>Bem-vindo</h1><p>Acesse sua caixa de entrada.</p></div>
+          <div className="welcome-copy"><p>Acesse sua caixa de entrada privada.<br />Entre com seu e-mail e senha para visualizar suas mensagens.</p></div>
           <form className="login-form" onSubmit={handleSubmit} noValidate>
             <label className="field-label" htmlFor="email">E-mail</label>
             <div className="field-wrap"><Mail className="field-icon" size={17} /><input id="email" type="email" placeholder="voce@exemplo.com" value={email} onChange={(event) => { setEmail(event.target.value); setFieldError(""); }} autoComplete="email" aria-invalid={Boolean(fieldError)} /></div>
@@ -336,8 +336,6 @@ export default function Home() {
             {fieldError && <p className="field-error" role="alert">{fieldError}</p>}
             <button className="primary-button" type="submit" disabled={submitting}><span>{submitting ? "Aguarde..." : "Entrar"}</span><ArrowRight size={17} /></button>
           </form>
-          <p className="privacy-note"><ShieldCheck size={13} /> acesso seguro por e-mail e senha</p>
-
         </div>
       </section>
       <footer className="page-footer">Todos os direitos reservados. 2026 <span className="footer-dot" /> <a href="https://support.google.com/mail/answer/10434152?hl=pt-br" target="_blank" rel="noreferrer">Privacidade</a></footer>
