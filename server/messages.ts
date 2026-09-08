@@ -60,12 +60,10 @@ export async function getInboundMessagesForSession(session: LocalSession): Promi
     let detail = summary;
     if (!cached) {
       detail = await getDuckMessage(session.duckToken, summary.id);
-      const parsed = detail.text
-        ? { text: detail.text, links: [] as Array<{ label: string; url: string }> }
-        : htmlBody(detail.html);
-      body = parsed.text.replace(/\s+/g, " ").trim();
-      html = parsed.html;
-      links = extractLinks(body, parsed.links);
+      const parsedHtml = htmlBody(detail.html);
+      body = (detail.text || parsedHtml.text).replace(/\s+/g, " ").trim();
+      html = parsedHtml.html;
+      links = extractLinks(body, parsedHtml.links);
       bodyCache.set(summary.id, { text: body, links });
     }
 
