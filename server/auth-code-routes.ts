@@ -2,6 +2,7 @@ import type { Express, Request, Response } from "express";
 import { randomBytes } from "node:crypto";
 import { createDuckMailAccount, getDuckMailToken, getPublicDomains } from "./duckmail";
 import { createSession, SESSION_COOKIE } from "./session";
+import { rateLimit } from "./rate-limit";
 
 function validEmail(value: unknown): value is string {
   return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -11,7 +12,7 @@ function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
-function cookie(res: Response, email: string, password: string, token: string, accountId?: string): void {
+function cookie(res: Response, email: string, password: string, token: string, accountId?: string): string {
   const sessionId = createSession({ email, password, duckToken: token, accountId });
   res.cookie(SESSION_COOKIE, sessionId, {
     httpOnly: true,
@@ -19,6 +20,7 @@ function cookie(res: Response, email: string, password: string, token: string, a
     secure: process.env.NODE_ENV === "production",
     maxAge: 1000 * 60 * 60 * 24,
   });
+  return sessionId;
 }
 
 function randomLocalPart(): string {
@@ -36,7 +38,7 @@ function randomMailboxPassword(): string {
 }
 
 export function registerAuthCodeRoutes(app: Express) {
-  app.post("/api/auth/login", async (req: Request, res: Response) => {
+  app.post("/api/auth/login", rateLimit({ name: "login", windowMs: 10 * 60 * 1000, max: 10 }), async (req: Request, res: Response) => {
     const { email, password } = req.body as { email?: unknown; password?: unknown };
     if (!validEmail(email) || typeof password !== "string" || password.length < 6) {
       res.status(400).json({ error: "Informe um e-mail válido e uma senha com pelo menos 6 caracteres." });
@@ -45,8 +47,8 @@ export function registerAuthCodeRoutes(app: Express) {
     try {
       const normalizedEmail = normalizeEmail(email);
       const result = await getDuckMailToken(normalizedEmail, password);
-      cookie(res, normalizedEmail, password, result.token!, result.id);
-      res.json({ ok: true, email: normalizedEmail });
+      const sessionToken = cookie(res, normalizedEmail, password, result.token!, result.id);
+      res.json({ ok: true, email: normalizedEmail, sessionToken });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Não foi possível entrar.";
       const status = /DuckMail 401/i.test(message) ? 401 : /DuckMail 404/i.test(message) ? 404 : 400;
@@ -54,7 +56,7 @@ export function registerAuthCodeRoutes(app: Express) {
     }
   });
 
-  app.post("/api/auth/create-mailbox", async (req: Request, res: Response) => {
+  app.post("/api/auth/create-mailbox", rateLimit({ name: "create-mailbox", windowMs: 60 * 60 * 1000, max: 5 }), async (req: Request, res: Response) => {
     const { prefix } = req.body as { prefix?: unknown };
     const safePrefix = typeof prefix === "string" && /^[a-z0-9._-]{3,24}$/i.test(prefix)
       ? prefix.toLowerCase()
@@ -71,8 +73,8 @@ export function registerAuthCodeRoutes(app: Express) {
         try {
           const account = await createDuckMailAccount(address, safePassword);
           const auth = await getDuckMailToken(address, safePassword);
-          cookie(res, address, safePassword, auth.token!, account.id);
-          res.status(201).json({ ok: true, email: address, password: safePassword });
+          const sessionToken = cookie(res, address, safePassword, auth.token!, account.id);
+          res.status(201).json({ ok: true, email: address, password: safePassword, sessionToken });
           return;
         } catch (error) {
           lastError = error;

@@ -7,12 +7,14 @@ import { registerAuthCodeRoutes } from "./auth-code-routes";
 import { createServer } from "http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { rateLimit } from "./rate-limit";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 function currentSession(req: express.Request) {
-  return getSession(req.cookies?.[SESSION_COOKIE]);
+  const bearer = req.headers.authorization?.match(/^Bearer\s+(.+)$/i)?.[1];
+  return getSession(bearer || req.cookies?.[SESSION_COOKIE]);
 }
 
 const app = express();
@@ -22,7 +24,7 @@ app.use((req, res, next) => {
   if (req.headers.origin === frontendOrigin) {
     res.setHeader("Access-Control-Allow-Origin", frontendOrigin);
     res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   }
   if (req.method === "OPTIONS") {
@@ -33,6 +35,7 @@ app.use((req, res, next) => {
 });
 app.use(express.json({ limit: "100kb" }));
 app.use(cookieParser());
+app.use(rateLimit({ name: "global", windowMs: 60 * 1000, max: 120 }));
 registerAuthCodeRoutes(app);
 
 app.get("/healthz", (_req, res) => {
@@ -50,7 +53,7 @@ app.post("/api/auth/logout", (req, res) => {
   res.json({ ok: true });
 });
 
-app.get("/api/messages", async (req, res) => {
+app.get("/api/messages", rateLimit({ name: "messages", windowMs: 60 * 1000, max: 30 }), async (req, res) => {
   const session = currentSession(req);
   if (!session) {
     res.status(401).json({ error: "Não autenticado." });
