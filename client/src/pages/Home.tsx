@@ -313,7 +313,7 @@ export default function Home() {
         </header>
 
         <div className="card-content">
-          <div className="brand-lockup"><div className="mark-stage"><div className="stage-glow" /><img className="brand-logo-image" src="/strong-mail-st-logo-transparent.png" alt="Logo ST" /></div><div className="brand-name">strong<span>mail</span><b>®</b></div><div className="brand-tagline"><span /> ST private mail <span /></div></div>
+          <div className="brand-lockup"><div className="mark-stage"><div className="stage-glow" /><img className="brand-logo-image" src="/webmail/strong-mail-st-logo-transparent.png" alt="Logo ST" /></div><div className="brand-name">strong<span>mail</span><b>®</b></div><div className="brand-tagline"><span /> ST private mail <span /></div></div>
           <div className="welcome-copy"><h1>Bem-vindo</h1><p>Entre com seu e-mail e senha para acessar sua caixa de entrada.</p></div>
           <form className="login-form" onSubmit={handleSubmit} noValidate>
             <label className="field-label" htmlFor="email">E-mail</label>
