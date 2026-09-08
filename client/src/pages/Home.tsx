@@ -22,6 +22,7 @@ const API_BASE = "https://webmail-ji61.onrender.com";
 type SessionResponse = { authenticated: boolean; email: string | null };
 type MessagesResponse = { messages: MailItem[] };
 type Folder = "inbox" | "starred" | "archived" | "trash";
+type ApiError = Error & { status?: number };
 
 async function fetchSession(): Promise<SessionResponse> {
   const response = await fetch(`${API_BASE}/api/session`, { credentials: "include" });
@@ -33,7 +34,9 @@ async function fetchMessages(): Promise<MailItem[]> {
   const response = await fetch(`${API_BASE}/api/messages`, { credentials: "include" });
   if (!response.ok) {
     const payload = (await response.json().catch(() => ({}))) as { error?: string };
-    throw new Error(payload.error || "Não foi possível carregar as mensagens.");
+    const error = new Error(payload.error || "Não foi possível carregar as mensagens.") as ApiError;
+    error.status = response.status;
+    throw error;
   }
   const payload = (await response.json()) as MessagesResponse;
   return payload.messages ?? [];
@@ -107,9 +110,19 @@ function InboxView({ email, onLogout }: { email: string; onLogout: () => void })
       setServerWaking(false);
       setWakeAttempt(0);
     } catch (error) {
-      setServerWaking(true);
-      setWakeAttempt((attempt) => attempt + 1);
-      setLoadError("");
+      const status = (error as ApiError).status;
+      if (status === 401) {
+        setServerWaking(false);
+        setLoadError("Sua sessão expirou. Faça login novamente.");
+        onLogout();
+      } else if (typeof status === "number") {
+        setServerWaking(false);
+        setLoadError(error instanceof Error ? error.message : "Não foi possível sincronizar as mensagens.");
+      } else {
+        setServerWaking(true);
+        setWakeAttempt((attempt) => attempt + 1);
+        setLoadError("");
+      }
     } finally {
       setLastSync(new Date());
       setSyncing(false);
