@@ -80,6 +80,16 @@ function renderLinkedText(text: string, links: Array<{ label: string; url: strin
   });
 }
 
+function linkLabel(url: string, label: string): string {
+  const normalized = label.trim();
+  if (normalized && normalized.length < 70 && !/^https?:\/\//i.test(normalized)) return normalized;
+  const lower = `${normalized} ${url}`.toLowerCase();
+  if (lower.includes("verify") || lower.includes("confirm") || lower.includes("verif")) return "Verificar e-mail";
+  if (lower.includes("reset") || lower.includes("recover") || lower.includes("senha")) return "Redefinir senha";
+  if (lower.includes("login") || lower.includes("sign in") || lower.includes("entrar")) return "Entrar";
+  return "Abrir link seguro";
+}
+
 function InboxView({ email, onLogout }: { email: string; onLogout: () => void }) {
   const [mails, setMails] = useState<MailItem[]>([]);
   const [lastSync, setLastSync] = useState(new Date());
@@ -222,11 +232,11 @@ function InboxView({ email, onLogout }: { email: string; onLogout: () => void })
             <h2 id="mail-detail-title">{selectedMail.subject}</h2>
             <div className="detail-meta"><strong>{selectedMail.sender}</strong><span>{selectedMail.time}</span></div>
             <div className="detail-body">
-              {renderLinkedText(selectedMail.body || selectedMail.preview, selectedMail.links || [])}
+              {selectedMail.html ? <div className="email-html" dangerouslySetInnerHTML={{ __html: selectedMail.html }} /> : renderLinkedText(selectedMail.body || selectedMail.preview, selectedMail.links || [])}
               {selectedMail.links && selectedMail.links.length > 0 && !selectedMail.links.every((link) => (selectedMail.body || "").includes(link.url)) && (
                 <div className="detail-links">
                   {selectedMail.links.slice(0, 8).map((link) => (
-                    <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer nofollow">{link.label || link.url}</a>
+                    <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer nofollow">{linkLabel(link.url, link.label)}</a>
                   ))}
                 </div>
               )}
