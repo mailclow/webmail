@@ -36,7 +36,19 @@ function jsonHeaders(token?: string): HeadersInit {
 }
 
 async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch(`${DUCKMAIL_API}${path}`, init);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15_000);
+  let response: Response;
+  try {
+    response = await fetch(`${DUCKMAIL_API}${path}`, { ...init, signal: controller.signal });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("DuckMail demorou para responder.");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
   const text = await response.text();
   let payload: unknown = undefined;
   try { payload = text ? JSON.parse(text) : undefined; } catch { payload = text; }
