@@ -106,6 +106,9 @@
     radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.065), transparent 37%),
     linear-gradient(135deg, #080808 0%, #131314 48%, #060606 100%);
 }
+.auth-loading { gap: 14px; color: #8f999a; font-size: 12px; }
+.loading-mark { display: grid; place-items: center; width: 52px; height: 52px; border: 1px solid rgba(255,255,255,.38); border-radius: 14px; color: #111; background: #e8e8e8; font-family: "Space Grotesk", sans-serif; font-size: 14px; font-weight: 800; letter-spacing: -.12em; animation: loading-pulse 1.2s ease-in-out infinite; }
+@keyframes loading-pulse { 0%, 100% { opacity: .55; transform: scale(.96); } 50% { opacity: 1; transform: scale(1); } }
 
 .ambient, .grain { position: absolute; pointer-events: none; z-index: -1; }
 .ambient { border-radius: 999px; filter: blur(1px); opacity: 0.65; }
@@ -222,10 +225,12 @@
 .inbox-panel { min-width: 0; }
 .inbox-heading { justify-content: space-between; margin-bottom: 13px; }.inbox-kicker { margin: 0 0 7px; color: #777; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; }.inbox-heading h1 { margin: 0; font-family: "Space Grotesk", sans-serif; font-size: 28px; letter-spacing: -.04em; }.inbox-heading h1 span { display: inline-grid; place-items: center; min-width: 23px; height: 23px; margin-left: 6px; border-radius: 50%; color: #151515; background: #ededed; font-family: "DM Sans", sans-serif; font-size: 11px; vertical-align: 4px; }
 .refresh-button { gap: 7px; padding: 9px 12px; border: 1px solid rgba(255,255,255,.18); border-radius: 8px; color: #bfbfbf; background: transparent; font: inherit; font-size: 11px; }.refresh-button:hover { color: #fff; border-color: rgba(255,255,255,.5); }.refresh-button.is-syncing svg { animation: spin 700ms linear infinite; }
-.sync-line { gap: 7px; margin-bottom: 21px; color: #777; font-size: 10px; }.sync-line span:not(.live-dot) { color: #4f4f4f; }.live-dot { width: 6px; height: 6px; border-radius: 50%; background: #eee; box-shadow: 0 0 0 3px rgba(255,255,255,.08); }
+.sync-line { gap: 7px; margin-bottom: 21px; color: #777; font-size: 10px; }.connection-label { color: #86d99a !important; }.connected-dot { width: 6px; height: 6px; border-radius: 50%; background: #65dc82; box-shadow: 0 0 0 3px rgba(101,220,130,.12), 0 0 12px rgba(101,220,130,.55); animation: connected-pulse 1.6s ease-in-out infinite; }
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: #eee; box-shadow: 0 0 0 3px rgba(255,255,255,.08); }
 .server-waking { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 11px 13px; border: 1px solid rgba(255,255,255,.12); border-radius: 10px; color: #d8d8d8; background: rgba(255,255,255,.06); }
 .server-waking strong { color: #fff; font-size: 12px; }.server-waking span { color: #a8a8a8 !important; }.spin { animation: mail-spin 1s linear infinite; }
 @keyframes mail-spin { to { transform: rotate(360deg); } }
+@keyframes connected-pulse { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
 .mail-list { overflow: hidden; border: 1px solid rgba(255,255,255,.1); border-radius: 13px; background: rgba(255,255,255,.025); }.mail-row { position: relative; display: flex; align-items: flex-start; gap: 15px; min-height: 94px; padding: 18px 20px; border-bottom: 1px solid rgba(255,255,255,.08); transition: background 160ms ease; }.mail-row:last-child { border-bottom: 0; }.mail-row:hover { background: rgba(255,255,255,.045); }.mail-row.unread { background: rgba(255,255,255,.055); }.mail-sender-avatar { flex: 0 0 35px; display: grid; place-items: center; width: 35px; height: 35px; border: 1px solid rgba(255,255,255,.25); border-radius: 10px; color: #111; background: #dcdcdc; font-family: "Space Grotesk", sans-serif; font-size: 13px; font-weight: 700; }.mail-copy { min-width: 0; }.mail-copy strong { color: #eee; font-size: 12px; }.mail-copy h2 { display: inline; margin: 0 0 0 9px; color: #d5d5d5; font-size: 12px; font-weight: 600; }.mail-copy p { overflow: hidden; margin: 7px 0 0; color: #777; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }.mail-copy code { display: inline-block; margin-top: 8px; padding: 4px 7px; border-radius: 5px; color: #171717; background: #e7e7e7; font-family: "Space Grotesk", sans-serif; font-size: 11px; letter-spacing: .12em; }.mail-row time { margin-left: auto; color: #747474; font-size: 10px; white-space: nowrap; }.unread-dot { position: absolute; top: 24px; right: 10px; width: 5px; height: 5px; border-radius: 50%; background: #eee; }
 .mail-footer { padding: 30px 20px; color: #666; text-align: center; font-size: 10px; }.mail-footer span { padding: 0 8px; color: #444; }.mail-footer a { color: #a7a7a7; text-decoration: none; }.mail-footer a:hover { color: #fff; }
 @keyframes spin { to { transform: rotate(360deg); } }
