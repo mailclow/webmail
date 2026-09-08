@@ -315,9 +315,9 @@ export default function Home() {
   return (
     <main className="auth-shell">
       <div className="ambient ambient-one" /><div className="ambient ambient-two" /><div className="grain" />
-      <section className="login-card" aria-label="Acesso Strong Mail">
+      <section className="login-card" aria-label="Acesso ao Strong Mail">
         <header className="card-header">
-          <div className="header-identity"><div className="header-avatar"><UserRound size={15} strokeWidth={2.2} /></div><span>Login de usuário</span></div>
+          <div className="header-identity" aria-hidden="true" />
           <div className="header-controls">
             <button className="icon-button" type="button" aria-label="Tema escuro"><Moon size={16} /></button>
             <div className="theme-toggle" aria-label="Tema escuro ativado"><span /></div>
@@ -326,8 +326,8 @@ export default function Home() {
         </header>
 
         <div className="card-content">
-          <div className="brand-lockup"><div className="mark-stage"><div className="stage-glow" /><img className="brand-logo-image" src="/webmail/strong-mail-st-logo-transparent.png" alt="Logo ST" /></div><div className="brand-name">strong<span>mail</span><b>®</b></div><div className="brand-tagline"><span /> ST private mail <span /></div></div>
-          <div className="welcome-copy"><h1>Bem-vindo</h1><p>Entre com seu e-mail e senha para acessar sua caixa de entrada.</p></div>
+          <div className="brand-lockup"><div className="mark-stage"><div className="stage-glow" /><img className="brand-logo-image" src="/webmail/strong-mail-st-logo-transparent.png" alt="ST" /></div><div className="brand-name">Strong <span>Mail</span></div></div>
+          <div className="welcome-copy"><h1>Bem-vindo</h1><p>Acesse sua caixa de entrada.</p></div>
           <form className="login-form" onSubmit={handleSubmit} noValidate>
             <label className="field-label" htmlFor="email">E-mail</label>
             <div className="field-wrap"><Mail className="field-icon" size={17} /><input id="email" type="email" placeholder="voce@exemplo.com" value={email} onChange={(event) => { setEmail(event.target.value); setFieldError(""); }} autoComplete="email" aria-invalid={Boolean(fieldError)} /></div>
