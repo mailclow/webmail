@@ -200,7 +200,7 @@ function InboxView({ email, onLogout }: { email: string; onLogout: () => void })
           </div>
 
           <div className="sync-line" aria-live="polite">
-            <span className="live-dot" /> atualização automática a cada 5 segundos <span>•</span> última sincronização às {lastSync.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+            {!serverWaking && <><span className="connected-dot" /><span className="connection-label">Conectado</span></>}
             {serverWaking && <div className="server-waking" role="status"><RefreshCw size={14} className="spin" /><strong>Conectando ao servidor...</strong><span>Aguarde um instante.</span></div>}
             {loadError && <span className="sync-error"> • {loadError}</span>}
           </div>
